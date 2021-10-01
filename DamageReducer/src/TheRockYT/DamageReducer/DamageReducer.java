@@ -29,7 +29,7 @@ public class DamageReducer extends JavaPlugin implements Listener {
 	public void load() {
 		File f = new File(getDataFolder(), "settings.yml");
 		cfg = YamlConfiguration.loadConfiguration(f);
-		cfg.options().header("Values in percent. 100.0=Normal damage");
+		cfg.options().header("Values in percent. 100.0=Normal damage.");
 		reducedItems = new HashMap<Material, Double>();
 		cfg.addDefault("GlobalDamageValue", 90.0);
 		cfg.addDefault("Debug", false);
