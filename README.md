@@ -10,6 +10,6 @@
 2. Change "Items.<Type>" to 100.0=100%=Full damage;50.0=50%=Half damage;0.0=0%=No damage;....
 3. Change some messages.
 ### Commands
-/damgereducer <Value> - Set custom damage value.\
-/damgereducer remove - Remove custom damage value.\
-/damgereducer reload - Reload the plugin.
+/damgereducer <Value> - Set custom damage value. - Permission: *DamageReducer.set*\
+/damgereducer remove - Remove custom damage value. - Permission: *DamageReducer.remove*\
+/damgereducer reload - Reload the plugin. - Permission: *DamageReducer.reload*
