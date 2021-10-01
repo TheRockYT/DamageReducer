@@ -1,0 +1,6 @@
+main: TheRockYT.DamageReducer.DamageReducer
+author: TheRockYT
+version: 1.0
+name: DamageReducer
+commands:
+  DamageReducer:
