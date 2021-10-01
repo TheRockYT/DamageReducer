@@ -55,7 +55,11 @@ public class DamageReducer extends JavaPlugin implements Listener {
 						+ "&4Damage&cReducer &4>> &c/damagerducer reload - Reload the plugin%nl%"
 						+ "&4Damage&cReducer &4>> &c/damagerducer <Value> - Set a custom damege value%nl%"
 						+ "&4Damage&cReducer &4>> &c/damagerducer remove - Remove a custom damege value%nl%");
-		cfg.set("Materials."+Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3], Arrays.asList(Material.values()));
+		ArrayList<String> materials = new ArrayList<String>();
+		for(Material mat : Material.values()) {
+				materials.add(mat.toString());
+		}
+		cfg.set("Materials."+Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3], materials);
 		for (String cfgS : cfg.getConfigurationSection("Items").getKeys(false)) {
 			try {
 				reducedItems.put(Material.valueOf(cfgS), cfg.getDouble("Items." + cfgS));
