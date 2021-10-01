@@ -3,6 +3,7 @@ package TheRockYT.DamageReducer;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -54,6 +55,7 @@ public class DamageReducer extends JavaPlugin implements Listener {
 						+ "&4Damage&cReducer &4>> &c/damagerducer reload - Reload the plugin%nl%"
 						+ "&4Damage&cReducer &4>> &c/damagerducer <Value> - Set a custom damege value%nl%"
 						+ "&4Damage&cReducer &4>> &c/damagerducer remove - Remove a custom damege value%nl%");
+		cfg.set("Materials."+Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3], Arrays.asList(Material.values()));
 		for (String cfgS : cfg.getConfigurationSection("Items").getKeys(false)) {
 			try {
 				reducedItems.put(Material.valueOf(cfgS), cfg.getDouble("Items." + cfgS));
