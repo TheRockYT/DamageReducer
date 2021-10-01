@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,12 +31,14 @@ public class DamageReducer extends JavaPlugin implements Listener {
 	public void load() {
 		File f = new File(getDataFolder(), "settings.yml");
 		cfg = YamlConfiguration.loadConfiguration(f);
-		cfg.options().header("Values in percent. 100.0=Normal damage.");
+		cfg.options().header("Values in percent. 100.0=Normal damage; 50.0=Half damage;...");
 		reducedItems = new HashMap<Material, Double>();
 		cfg.addDefault("GlobalDamageValue", 90.0);
 		cfg.addDefault("Debug", false);
-		cfg.addDefault("Items.WOOD_SWORD", 95.0);
-		cfg.addDefault("Items.IRON_SWORD", 95.0);
+		if(!f.exists()) {
+			cfg.addDefault("Items.WOOD_SWORD", 95.0);
+			cfg.addDefault("Items.IRON_SWORD", 95.0);
+		}
 		cfg.addDefault("Command.Reload.No_Permission",
 				"&4Damage&cReducer &4>> &cYou need more permissions! (DamageReducer.reload)");
 		cfg.addDefault("Command.Reload.Reloading", "&4Damage&cReducer &4>> &cReloading...");
@@ -60,10 +63,12 @@ public class DamageReducer extends JavaPlugin implements Listener {
 				materials.add(mat.toString());
 		}
 		cfg.set("Materials."+Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3], materials);
-		for (String cfgS : cfg.getConfigurationSection("Items").getKeys(false)) {
-			try {
-				reducedItems.put(Material.valueOf(cfgS), cfg.getDouble("Items." + cfgS));
-			} catch (Exception e) {
+		if(cfg.getConfigurationSection("Items") != null) {
+			for (String cfgS : cfg.getConfigurationSection("Items").getKeys(false)) {
+				try {
+					reducedItems.put(Material.valueOf(cfgS), cfg.getDouble("Items." + cfgS));
+				} catch (Exception e) {
+				}
 			}
 		}
 		Bukkit.getPluginManager().registerEvents(this, this);
@@ -133,11 +138,14 @@ public class DamageReducer extends JavaPlugin implements Listener {
 							Player p = (Player) sender;
 							ItemStack is = p.getItemInHand();
 							if (is != null && is.getItemMeta() != null) {
+								//1000000000000
 								try {
 									Double d = Double.parseDouble(args[0]);
-									if (d != null) {
+									if (d != null&&1000000000000.>=d&&0<=d) {
 										setCustomDamage(is, d);
 										sender.sendMessage(getMessage("Command.Set.Done"));
+									}else {
+										sender.sendMessage(getMessage("Command.Set.Not_Valid"));
 									}
 								} catch (Exception e) {
 									sender.sendMessage(getMessage("Command.Set.Not_Valid"));
@@ -213,7 +221,7 @@ public class DamageReducer extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onDamageByEntity(EntityDamageByEntityEvent e) {
 		if (e.getDamager() != null && e.getDamager() instanceof HumanEntity
-				&& ((HumanEntity) e.getDamager()).getItemInHand() != null) {
+				&& ((HumanEntity) e.getDamager()).getItemInHand() != null && e.getCause() == DamageCause.ENTITY_ATTACK && e.getCause() != DamageCause.CUSTOM) {
 			ItemStack is = ((HumanEntity) e.getDamager()).getItemInHand();
 			Material mat = is.getType();
 
@@ -228,18 +236,20 @@ public class DamageReducer extends JavaPlugin implements Listener {
 
 			if (reduceValue != null) {
 				double newDamage1 = e.getDamage() / 100 * reduceValue;
-				if (cfg.getBoolean("Debug") && e.getEntity() instanceof Player) {
-					((Player) e.getEntity()).sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage1 + "!");
-					Bukkit.getConsoleSender()
-							.sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage1 + "!");
+				if (cfg.getBoolean("Debug")) {
+					if(e.getEntity() instanceof Player) {
+						((Player) e.getEntity()).sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage1 + "!");
+					}
+					Bukkit.getConsoleSender().sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage1 + "!");
 				}
 				e.setDamage(newDamage1);
 			} else if (reducedItems.containsKey(mat)) {
 				double newDamage2 = e.getDamage() / 100 * reducedItems.get(mat);
-				if (cfg.getBoolean("Debug") && e.getEntity() instanceof Player) {
-					((Player) e.getEntity()).sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage2 + "!");
-					Bukkit.getConsoleSender()
-							.sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage2 + "!");
+				if (cfg.getBoolean("Debug")) {
+					if(e.getEntity() instanceof Player) {
+						((Player) e.getEntity()).sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage2 + "!");
+					}
+					Bukkit.getConsoleSender().sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage2 + "!");
 				}
 				e.setDamage(newDamage2);
 			}
@@ -250,9 +260,11 @@ public class DamageReducer extends JavaPlugin implements Listener {
 	public void onDamage(EntityDamageEvent e) {
 		double newDamage = e.getDamage() / 100 * cfg.getDouble("GlobalDamageValue");
 		boolean reduced = false;
-		if (!reduced) {
-			if (cfg.getBoolean("Debug") && e.getEntity() instanceof Player) {
-				((Player) e.getEntity()).sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage + "!");
+		if (!reduced && e.getCause() != DamageCause.ENTITY_ATTACK && e.getCause() != DamageCause.CUSTOM) {
+			if (cfg.getBoolean("Debug")) {
+				if(e.getEntity() instanceof Player) {
+					((Player) e.getEntity()).sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage + "!");
+				}
 				Bukkit.getConsoleSender().sendMessage("Reduced damege " + e.getDamage() + " to " + newDamage + "!");
 			}
 			e.setDamage(newDamage);
