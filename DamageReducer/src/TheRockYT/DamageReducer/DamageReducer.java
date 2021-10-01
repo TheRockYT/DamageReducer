@@ -26,7 +26,7 @@ public class DamageReducer extends JavaPlugin implements Listener {
 	YamlConfiguration cfg;
 	HashMap<Material, Double> reducedItems;
 	public void load() {
-		File f = new File(getDataFolder(), "damage.yml");
+		File f = new File(getDataFolder(), "settings.yml");
 		cfg = YamlConfiguration.loadConfiguration(f);
 		cfg.options().header("Values in percent. 100.0=Normal damage");
 		reducedItems = new HashMap<Material, Double>();
