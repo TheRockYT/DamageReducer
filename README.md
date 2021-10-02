@@ -2,8 +2,8 @@
 ## A damage change system for Bukkit/Spigot.
 ### Installation
 1. Download the latest version from the "Releases" tab.
-2. Now move the file into the plugins folder of your spigot / bukkit server.
-3. Restart your server.
+2. Now move the file into the plugins folder of the spigot / bukkit server.
+3. Restart the server.
 5. Done!
 ### Configuration ("plugins/DamageReducer/settings.yml")
 1. Change "GlobalDamageValue" to 100.0=100%=Full damage;50.0=50%=Half damage;0.0=0%=No damage;....
